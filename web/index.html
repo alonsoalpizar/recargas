@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recargas — Cliente</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  section { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.1rem; margin-top: 0; }
+  label { display: block; margin: 0.5rem 0 0.25rem; font-size: 0.9rem; }
+  input { width: 100%; padding: 0.5rem; box-sizing: border-box; }
+  button { margin-top: 0.75rem; padding: 0.5rem 1rem; cursor: pointer; }
+  pre { background: #f5f5f5; padding: 0.75rem; border-radius: 4px; overflow-x: auto; font-size: 0.85rem; }
+  .ok { color: #047857; }
+  .err { color: #b91c1c; }
+  .balance { font-size: 1.5rem; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>Recargas — Cliente</h1>
+
+<section>
+  <h2>Registro</h2>
+  <label>Email <input id="reg-email" type="email"></label>
+  <label>Password (mín 8) <input id="reg-pass" type="password"></label>
+  <label>Nombre completo <input id="reg-name"></label>
+  <label>Teléfono <input id="reg-phone"></label>
+  <button onclick="doRegister()">Crear cuenta</button>
+  <pre id="reg-out"></pre>
+</section>
+
+<section>
+  <h2>Login</h2>
+  <label>Email <input id="lg-email" type="email"></label>
+  <label>Password <input id="lg-pass" type="password"></label>
+  <button onclick="doLogin()">Entrar</button>
+  <pre id="lg-out"></pre>
+</section>
+
+<section>
+  <h2>Mi perfil + Saldo</h2>
+  <p>Token JWT actual: <code id="token-show">(no hay)</code></p>
+  <button onclick="doMe()">GET /api/me</button>
+  <button onclick="doBalance()">GET /api/wallet/balance</button>
+  <button onclick="logout()">Cerrar sesión</button>
+  <pre id="me-out"></pre>
+  <div id="balance-show" class="balance"></div>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+const TOKEN_KEY = 'recargas_jwt';
+const showToken = () => $('token-show').textContent = localStorage.getItem(TOKEN_KEY) || '(no hay)';
+showToken();
+
+async function call(path, opts = {}) {
+  opts.headers = opts.headers || {};
+  if (!opts.headers['Content-Type'] && opts.body) opts.headers['Content-Type'] = 'application/json';
+  const tok = localStorage.getItem(TOKEN_KEY);
+  if (tok && !opts.headers['Authorization']) opts.headers['Authorization'] = 'Bearer ' + tok;
+  const r = await fetch(path, opts);
+  const text = await r.text();
+  let body; try { body = JSON.parse(text); } catch { body = text; }
+  return { status: r.status, body };
+}
+
+async function doRegister() {
+  const out = $('reg-out');
+  const r = await call('/api/register', { method: 'POST', body: JSON.stringify({
+    email: $('reg-email').value, password: $('reg-pass').value,
+    full_name: $('reg-name').value, phone: $('reg-phone').value,
+  })});
+  out.className = r.status < 300 ? 'ok' : 'err';
+  out.textContent = r.status + ' ' + JSON.stringify(r.body, null, 2);
+}
+
+async function doLogin() {
+  const out = $('lg-out');
+  const r = await call('/api/login', { method: 'POST', body: JSON.stringify({
+    email: $('lg-email').value, password: $('lg-pass').value,
+  })});
+  out.className = r.status < 300 ? 'ok' : 'err';
+  out.textContent = r.status + ' ' + JSON.stringify(r.body, null, 2);
+  if (r.status < 300 && r.body.token) {
+    localStorage.setItem(TOKEN_KEY, r.body.token);
+    showToken();
+  }
+}
+
+async function doMe() {
+  const out = $('me-out');
+  const r = await call('/api/me');
+  out.className = r.status < 300 ? 'ok' : 'err';
+  out.textContent = r.status + ' ' + JSON.stringify(r.body, null, 2);
+}
+
+async function doBalance() {
+  const r = await call('/api/wallet/balance');
+  const div = $('balance-show');
+  if (r.status < 300) {
+    const fmt = c => '₡' + (c / 100).toLocaleString('es-CR', { minimumFractionDigits: 2 });
+    div.innerHTML = `Real: ${fmt(r.body.real_cents)} &middot; Promo: ${fmt(r.body.promo_cents)} &middot; <strong>Total: ${fmt(r.body.total_cents)}</strong>`;
+  } else {
+    div.textContent = 'Error: ' + r.status + ' ' + JSON.stringify(r.body);
+  }
+}
+
+function logout() {
+  localStorage.removeItem(TOKEN_KEY);
+  showToken();
+  $('me-out').textContent = '';
+  $('balance-show').textContent = '';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recargas — Admin</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  section { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  label { display: block; margin: 0.5rem 0 0.25rem; font-size: 0.9rem; }
+  input, select { width: 100%; padding: 0.5rem; box-sizing: border-box; }
+  button { margin-top: 0.75rem; padding: 0.5rem 1rem; cursor: pointer; }
+  pre { background: #f5f5f5; padding: 0.75rem; border-radius: 4px; overflow-x: auto; font-size: 0.85rem; }
+  .ok { color: #047857; }
+  .err { color: #b91c1c; }
+  .hint { color: #666; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<h1>Recargas — Admin</h1>
+
+<section>
+  <h2>Token de admin</h2>
+  <p class="hint">Coincide con la env var ADMIN_TOKEN del servidor.</p>
+  <input id="admin-token" placeholder="X-Admin-Token">
+</section>
+
+<section>
+  <h2>Ajuste manual de wallet</h2>
+  <label>User ID (UUID)
+    <input id="user-id" placeholder="00000000-0000-0000-0000-000000000000">
+  </label>
+  <label>Nombre del operador (operator_name)
+    <input id="operator" placeholder="Alonso">
+  </label>
+  <label>Monto en céntimos (positivo o negativo, distinto de 0)
+    <input id="amount" type="number" placeholder="50000 (= ₡500.00)">
+  </label>
+  <label>Tipo de saldo
+    <select id="kind">
+      <option value="real" selected>real</option>
+      <option value="promo">promocional</option>
+    </select>
+  </label>
+  <label>Razón
+    <input id="reason" placeholder="Bono de bienvenida">
+  </label>
+  <label>Idempotency-Key
+    <input id="idem">
+    <button type="button" onclick="genIdem()">generar uuid</button>
+  </label>
+  <button onclick="doAdjust()">Aplicar ajuste</button>
+  <pre id="out"></pre>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function genIdem() {
+  $('idem').value = (crypto.randomUUID && crypto.randomUUID()) || (Date.now() + '-' + Math.random().toString(36).slice(2));
+}
+
+async function doAdjust() {
+  const out = $('out');
+  const userId = $('user-id').value.trim();
+  if (!userId) { out.textContent = 'falta user id'; return; }
+  const idem = $('idem').value.trim();
+  if (!idem) { out.textContent = 'falta idempotency key'; return; }
+  const tok = $('admin-token').value.trim();
+  const r = await fetch(`/api/admin/wallet/${encodeURIComponent(userId)}/adjust`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-Token': tok,
+      'Idempotency-Key': idem,
+    },
+    body: JSON.stringify({
+      amount_cents: parseInt($('amount').value, 10),
+      kind: $('kind').value,
+      reason: $('reason').value,
+      operator_name: $('operator').value,
+    }),
+  });
+  const text = await r.text();
+  let body; try { body = JSON.parse(text); } catch { body = text; }
+  out.className = r.status < 300 ? 'ok' : 'err';
+  out.textContent = r.status + ' ' + JSON.stringify(body, null, 2);
+}
+</script>
+</body>
+</html>
