@@ -11,14 +11,16 @@ const tokenTTL = 24 * time.Hour
 
 type Claims struct {
 	UserID string `json:"uid"`
+	Cedula string `json:"cedula"`
 	Email  string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-func IssueToken(secret []byte, userID, email string) (string, error) {
+func IssueToken(secret []byte, userID, cedula, email string) (string, error) {
 	now := time.Now()
 	claims := Claims{
 		UserID: userID,
+		Cedula: cedula,
 		Email:  email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(now),

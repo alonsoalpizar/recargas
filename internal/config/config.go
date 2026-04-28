@@ -3,16 +3,20 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Port       string
-	BaseURL    string
-	DBURL      string
-	JWTSecret  []byte
-	AdminToken string
+	Port           string
+	BaseURL        string
+	DBURL          string
+	JWTSecret      []byte
+	AdminToken     string
+	GoMetaBaseURL  string
+	GoMetaTimeout  time.Duration
 }
 
 func Load() (*Config, error) {
@@ -36,12 +40,20 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("ADMIN_TOKEN is required")
 	}
 
+	gometaBaseURL := getenv("GOMETA_BASE_URL", "https://apis.gometa.org")
+	gometaTimeoutSec, _ := strconv.Atoi(getenv("GOMETA_TIMEOUT_SECONDS", "10"))
+	if gometaTimeoutSec <= 0 {
+		gometaTimeoutSec = 10
+	}
+
 	return &Config{
-		Port:       port,
-		BaseURL:    baseURL,
-		DBURL:      dbURL,
-		JWTSecret:  []byte(jwtSecret),
-		AdminToken: adminToken,
+		Port:          port,
+		BaseURL:       baseURL,
+		DBURL:         dbURL,
+		JWTSecret:     []byte(jwtSecret),
+		AdminToken:    adminToken,
+		GoMetaBaseURL: gometaBaseURL,
+		GoMetaTimeout: time.Duration(gometaTimeoutSec) * time.Second,
 	}, nil
 }
 

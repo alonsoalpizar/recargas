@@ -3,116 +3,127 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Recargas — Cliente</title>
+<title>RecargaTica · Recargá tu celular en segundos</title>
+<meta name="description" content="Recargá tu celular al instante. Saldo digital seguro, recargas rápidas, sin filas. Operadores móviles de Costa Rica.">
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
-  section { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.1rem; margin-top: 0; }
-  label { display: block; margin: 0.5rem 0 0.25rem; font-size: 0.9rem; }
-  input { width: 100%; padding: 0.5rem; box-sizing: border-box; }
-  button { margin-top: 0.75rem; padding: 0.5rem 1rem; cursor: pointer; }
-  pre { background: #f5f5f5; padding: 0.75rem; border-radius: 4px; overflow-x: auto; font-size: 0.85rem; }
-  .ok { color: #047857; }
-  .err { color: #b91c1c; }
-  .balance { font-size: 1.5rem; font-weight: 600; }
+  :root {
+    --c-primary: #1565F9;
+    --c-primary-dark: #0d49c4;
+    --c-secondary: #22C55E;
+    --c-accent: #A3E635;
+    --c-bg: #FFFFFF;
+    --c-bg-soft: #F5F7FB;
+    --c-text: #1F2937;
+    --c-muted: #6B7280;
+    --c-border: #E5E7EB;
+    --radius: 10px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  *,*::before,*::after { box-sizing: border-box; }
+  body { margin:0; font-family: var(--font); color: var(--c-text); background: var(--c-bg); line-height: 1.5; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+
+  header { padding: 1rem 0; border-bottom: 1px solid var(--c-border); background:#fff; }
+  header .container { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .brand { font-size: 1.4rem; font-weight: 700; color: var(--c-primary); text-decoration: none; }
+  .brand em { color: var(--c-secondary); font-style: normal; }
+  .nav { display: flex; gap: 0.5rem; }
+
+  .btn { display: inline-block; padding: 0.6rem 1.2rem; border-radius: var(--radius); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: all 0.15s; cursor: pointer; border: 1px solid transparent; font-family: inherit; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+  .btn-primary:hover { background: var(--c-primary-dark); }
+  .btn-ghost { background: transparent; color: var(--c-primary); }
+  .btn-ghost:hover { background: var(--c-bg-soft); }
+  .btn-outline { background: transparent; color: var(--c-primary); border-color: var(--c-primary); }
+  .btn-outline:hover { background: var(--c-bg-soft); }
+
+  .hero { padding: 4.5rem 0 3.5rem; text-align: center; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin: 0 0 1rem; line-height: 1.15; letter-spacing: -0.02em; }
+  .hero p.lead { font-size: 1.15rem; color: var(--c-muted); max-width: 600px; margin: 0 auto 2rem; }
+  .hero .cta-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .hero .btn { padding: 0.85rem 1.7rem; font-size: 1rem; }
+
+  .badge-promo { display: inline-block; padding: 0.3rem 0.85rem; border-radius: 999px; background: var(--c-accent); color: #1f2937; font-size: 0.78rem; font-weight: 600; margin-bottom: 1.5rem; letter-spacing: 0.01em; }
+
+  .how { padding: 3.5rem 0 4.5rem; background: var(--c-bg-soft); }
+  .how h2 { text-align: center; font-size: 1.75rem; margin: 0 0 2.5rem; letter-spacing: -0.01em; }
+  .steps { display: grid; gap: 1.25rem; grid-template-columns: repeat(3, 1fr); }
+  .step { background: #fff; padding: 1.75rem 1.5rem; border-radius: var(--radius); border: 1px solid var(--c-border); }
+  .step .num { display: inline-flex; align-items: center; justify-content: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--c-secondary); color: #fff; font-weight: 700; margin-bottom: 1rem; font-size: 1.05rem; }
+  .step h3 { font-size: 1.1rem; margin: 0 0 0.5rem; color: var(--c-text); }
+  .step p { color: var(--c-muted); margin: 0; font-size: 0.95rem; }
+
+  footer { padding: 2rem 0; border-top: 1px solid var(--c-border); color: var(--c-muted); font-size: 0.85rem; background:#fff; }
+  footer .container { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  footer a { color: var(--c-muted); text-decoration: none; margin-left: 1.25rem; }
+  footer a:hover { color: var(--c-primary); }
+
+  @media (max-width: 720px) {
+    .steps { grid-template-columns: 1fr; }
+    .hero { padding: 2.5rem 0 2rem; }
+    .nav .btn-ghost { display: none; }
+    footer .container { flex-direction: column; align-items: flex-start; }
+    footer a { margin-left: 0; margin-right: 1.25rem; }
+  }
 </style>
 </head>
 <body>
-<h1>Recargas — Cliente</h1>
+<header>
+  <div class="container">
+    <a class="brand" href="/">Recarga<em>Tica</em></a>
+    <nav class="nav">
+      <a class="btn btn-ghost" href="/ingresar.html">Iniciar sesión</a>
+      <a class="btn btn-primary" href="/ingresar.html?nuevo=1">Crear cuenta</a>
+    </nav>
+  </div>
+</header>
 
-<section>
-  <h2>Registro</h2>
-  <label>Email <input id="reg-email" type="email"></label>
-  <label>Password (mín 8) <input id="reg-pass" type="password"></label>
-  <label>Nombre completo <input id="reg-name"></label>
-  <label>Teléfono <input id="reg-phone"></label>
-  <button onclick="doRegister()">Crear cuenta</button>
-  <pre id="reg-out"></pre>
-</section>
+<main>
+  <section class="hero">
+    <div class="container">
+      <span class="badge-promo">100% en línea · Sin filas, sin papeles</span>
+      <h1>Recargá tu celular en segundos</h1>
+      <p class="lead">Cargá saldo a tu monedero digital una sola vez y recargá tu teléfono cuando lo necesités. Seguro, rápido, desde donde estés.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/ingresar.html?nuevo=1">Crear cuenta gratis →</a>
+        <a class="btn btn-outline" href="/ingresar.html">Iniciar sesión</a>
+      </div>
+    </div>
+  </section>
 
-<section>
-  <h2>Login</h2>
-  <label>Email <input id="lg-email" type="email"></label>
-  <label>Password <input id="lg-pass" type="password"></label>
-  <button onclick="doLogin()">Entrar</button>
-  <pre id="lg-out"></pre>
-</section>
+  <section class="how">
+    <div class="container">
+      <h2>Cómo funciona</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Registrate con tu cédula</h3>
+          <p>Te identificás con tu cédula y unos datos básicos. Toma 30 segundos.</p>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>Cargá saldo a tu monedero</h3>
+          <p>Pagás una vez con tu tarjeta y queda saldo digital listo para usar cuando querás.</p>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <h3>Recargá tu celular</h3>
+          <p>Un clic y tu teléfono queda recargado al instante. Para vos o para tu familia.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
 
-<section>
-  <h2>Mi perfil + Saldo</h2>
-  <p>Token JWT actual: <code id="token-show">(no hay)</code></p>
-  <button onclick="doMe()">GET /api/me</button>
-  <button onclick="doBalance()">GET /api/wallet/balance</button>
-  <button onclick="logout()">Cerrar sesión</button>
-  <pre id="me-out"></pre>
-  <div id="balance-show" class="balance"></div>
-</section>
-
-<script>
-const $ = id => document.getElementById(id);
-const TOKEN_KEY = 'recargas_jwt';
-const showToken = () => $('token-show').textContent = localStorage.getItem(TOKEN_KEY) || '(no hay)';
-showToken();
-
-async function call(path, opts = {}) {
-  opts.headers = opts.headers || {};
-  if (!opts.headers['Content-Type'] && opts.body) opts.headers['Content-Type'] = 'application/json';
-  const tok = localStorage.getItem(TOKEN_KEY);
-  if (tok && !opts.headers['Authorization']) opts.headers['Authorization'] = 'Bearer ' + tok;
-  const r = await fetch(path, opts);
-  const text = await r.text();
-  let body; try { body = JSON.parse(text); } catch { body = text; }
-  return { status: r.status, body };
-}
-
-async function doRegister() {
-  const out = $('reg-out');
-  const r = await call('/api/register', { method: 'POST', body: JSON.stringify({
-    email: $('reg-email').value, password: $('reg-pass').value,
-    full_name: $('reg-name').value, phone: $('reg-phone').value,
-  })});
-  out.className = r.status < 300 ? 'ok' : 'err';
-  out.textContent = r.status + ' ' + JSON.stringify(r.body, null, 2);
-}
-
-async function doLogin() {
-  const out = $('lg-out');
-  const r = await call('/api/login', { method: 'POST', body: JSON.stringify({
-    email: $('lg-email').value, password: $('lg-pass').value,
-  })});
-  out.className = r.status < 300 ? 'ok' : 'err';
-  out.textContent = r.status + ' ' + JSON.stringify(r.body, null, 2);
-  if (r.status < 300 && r.body.token) {
-    localStorage.setItem(TOKEN_KEY, r.body.token);
-    showToken();
-  }
-}
-
-async function doMe() {
-  const out = $('me-out');
-  const r = await call('/api/me');
-  out.className = r.status < 300 ? 'ok' : 'err';
-  out.textContent = r.status + ' ' + JSON.stringify(r.body, null, 2);
-}
-
-async function doBalance() {
-  const r = await call('/api/wallet/balance');
-  const div = $('balance-show');
-  if (r.status < 300) {
-    const fmt = c => '₡' + (c / 100).toLocaleString('es-CR', { minimumFractionDigits: 2 });
-    div.innerHTML = `Real: ${fmt(r.body.real_cents)} &middot; Promo: ${fmt(r.body.promo_cents)} &middot; <strong>Total: ${fmt(r.body.total_cents)}</strong>`;
-  } else {
-    div.textContent = 'Error: ' + r.status + ' ' + JSON.stringify(r.body);
-  }
-}
-
-function logout() {
-  localStorage.removeItem(TOKEN_KEY);
-  showToken();
-  $('me-out').textContent = '';
-  $('balance-show').textContent = '';
-}
-</script>
+<footer>
+  <div class="container">
+    <div>© 2026 RecargaTica.com</div>
+    <div>
+      <a href="#">Términos</a>
+      <a href="#">Privacidad</a>
+      <a href="#">Contacto</a>
+    </div>
+  </div>
+</footer>
 </body>
 </html>

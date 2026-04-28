@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecargaTica · Mi perfil</title>
+<style>
+  :root {
+    --c-primary: #1565F9;
+    --c-primary-dark: #0d49c4;
+    --c-secondary: #22C55E;
+    --c-accent: #A3E635;
+    --c-bg: #FFFFFF;
+    --c-bg-soft: #F5F7FB;
+    --c-text: #1F2937;
+    --c-muted: #6B7280;
+    --c-border: #E5E7EB;
+    --c-ok: #047857;
+    --c-warn: #c2410c;
+    --c-err: #B91C1C;
+    --radius: 10px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  *,*::before,*::after { box-sizing: border-box; }
+  body { margin:0; font-family: var(--font); background: var(--c-bg-soft); color: var(--c-text); line-height: 1.5; }
+  header { background:#fff; border-bottom: 1px solid var(--c-border); padding: 0.85rem 1rem; display:flex; justify-content: space-between; align-items: center; }
+  .brand { font-size: 1.3rem; font-weight: 700; color: var(--c-primary); text-decoration: none; }
+  .brand em { color: var(--c-secondary); font-style: normal; }
+  header button { background:none; color: var(--c-muted); border:none; cursor:pointer; font-size: 0.9rem; padding: 0.4rem 0.6rem; border-radius: 6px; font-family: inherit; }
+  header button:hover { color: var(--c-primary); background: var(--c-bg-soft); }
+  .wrap { max-width: 720px; margin: 1.75rem auto 3rem; padding: 0 1rem; display: grid; gap: 1rem; }
+  .card { background:#fff; border:1px solid var(--c-border); border-radius: var(--radius); padding: 1.4rem 1.5rem; }
+  .card h2 { margin: 0 0 0.85rem; font-size: 0.78rem; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .grid { display:grid; gap: 0.85rem 1.5rem; grid-template-columns: 1fr 1fr; }
+  .grid > div { font-size: 0.95rem; }
+  .grid label { display:block; color: var(--c-muted); font-size: 0.75rem; margin-bottom: 0.15rem; }
+  .grid .val { font-weight: 500; word-break: break-all; }
+  .balance { font-size: 2rem; font-weight: 700; color: var(--c-secondary); }
+  .sub { color: var(--c-muted); font-size: 0.9rem; margin-top: 0.4rem; }
+  .nudge { background: #fff7ed; border-color: #fdba74; }
+  .nudge h2 { color: var(--c-warn); }
+  .nudge p { margin: 0 0 0.85rem; color: #7c2d12; font-size: 0.95rem; }
+  .nudge .missing-list { display:flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.85rem; }
+  .nudge .missing-list span { background:#fdba74; color:#7c2d12; padding: 0.18rem 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; }
+  form input, form select { width:100%; padding: 0.6rem 0.75rem; font-size: 0.95rem; border: 1px solid var(--c-border); border-radius: 8px; margin-top: 0.25rem; font-family: inherit; transition: border-color 0.15s; }
+  form input:focus, form select:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(21,101,249,0.12); }
+  form label { display:block; margin: 0.7rem 0 0; font-size: 0.85rem; font-weight: 500; }
+  form button { margin-top: 1.1rem; padding: 0.65rem 1.2rem; background: var(--c-primary); color:#fff; border:none; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 500; transition: background 0.15s; }
+  form button:hover { background: var(--c-primary-dark); }
+  .ok { color: var(--c-ok); font-size: 0.9rem; margin-top: 0.6rem; }
+  .err { color: var(--c-err); font-size: 0.9rem; margin-top: 0.6rem; }
+  .pill { display:inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.7rem; background: var(--c-bg-soft); color: var(--c-primary); margin-left: 0.5rem; vertical-align: middle; font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
+</style>
+</head>
+<body>
+<header>
+  <a class="brand" href="/perfil.html">Recarga<em>Tica</em></a>
+  <div>
+    <span id="hello" style="font-size:0.9rem;color:var(--c-muted);margin-right:0.75rem"></span>
+    <button onclick="logout()">Cerrar sesión</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- BANNER KYC (solo si faltan campos) -->
+  <div id="kyc-nudge" class="card nudge" style="display:none">
+    <h2>Completá tu perfil</h2>
+    <p>Para mejorar tu experiencia y poder operar saldos más altos en el futuro, completá los siguientes datos:</p>
+    <div id="missing-list" class="missing-list"></div>
+    <button onclick="document.getElementById('form-kyc').scrollIntoView({behavior:'smooth'})">Completar ahora</button>
+  </div>
+
+  <!-- DATOS BÁSICOS (read-only) -->
+  <div class="card">
+    <h2>Identificación</h2>
+    <div class="grid">
+      <div><label>Cédula</label><div class="val" id="v-cedula">—</div></div>
+      <div><label>Tipo</label><div class="val" id="v-tipo">—</div></div>
+      <div style="grid-column:1/3"><label>Nombre</label><div class="val" id="v-nombre">—</div></div>
+    </div>
+  </div>
+
+  <!-- SALDO -->
+  <div class="card">
+    <h2>Mi monedero</h2>
+    <div class="balance" id="v-total">₡0.00</div>
+    <div class="sub" id="v-detalle">real ₡0 · promo ₡0</div>
+  </div>
+
+  <!-- FORM EDITAR (email, telefono, KYC) -->
+  <div class="card">
+    <h2>Datos de contacto y dirección</h2>
+    <form id="form-kyc" onsubmit="event.preventDefault(); guardar()">
+      <label>Email <input id="f-email" type="email"></label>
+      <label>Teléfono <input id="f-telefono" type="tel" inputmode="numeric" maxlength="11"></label>
+      <label>Fecha de nacimiento <input id="f-fecha" type="date"></label>
+      <label>Provincia <input id="f-provincia"></label>
+      <label>Cantón <input id="f-canton"></label>
+      <label>Distrito <input id="f-distrito"></label>
+      <label>Dirección exacta <input id="f-direccion" placeholder="200m sur de la iglesia, casa azul..."></label>
+      <button type="submit">Guardar cambios</button>
+      <div id="form-msg" class="ok" style="display:none"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const TOKEN_KEY = 'recargas_jwt';
+const tok = localStorage.getItem(TOKEN_KEY);
+if (!tok) { location.href = '/'; }
+
+const fmt = c => '₡' + (c / 100).toLocaleString('es-CR', { minimumFractionDigits: 2 });
+
+async function api(path, opts = {}) {
+  opts.headers = opts.headers || {};
+  opts.headers['Authorization'] = 'Bearer ' + tok;
+  if (opts.body) opts.headers['Content-Type'] = 'application/json';
+  const r = await fetch(path, opts);
+  if (r.status === 401) { logout(); return null; }
+  return { status: r.status, body: await r.json() };
+}
+
+function logout() {
+  localStorage.removeItem(TOKEN_KEY);
+  location.href = '/';
+}
+
+async function load() {
+  const me = await api('/api/me');
+  if (!me) return;
+  if (me.status >= 400) { document.body.innerHTML = '<p>Error cargando perfil. <a href="/">volver</a></p>'; return; }
+  const u = me.body;
+
+  $('hello').textContent = (u.nombre_completo || '').split(' ').slice(0, 2).join(' ');
+  $('v-cedula').textContent = u.cedula;
+  $('v-tipo').textContent = u.cedula_type;
+  $('v-nombre').textContent = u.nombre_completo;
+
+  $('f-email').value = u.email || '';
+  $('f-telefono').value = u.telefono || '';
+  $('f-direccion').value = u.direccion || '';
+  $('f-provincia').value = u.provincia || '';
+  $('f-canton').value = u.canton || '';
+  $('f-distrito').value = u.distrito || '';
+  $('f-fecha').value = u.fecha_nacimiento ? u.fecha_nacimiento.slice(0, 10) : '';
+
+  // KYC nudge
+  const kyc = u.kyc_status || { complete: true, missing: [] };
+  if (!kyc.complete && kyc.missing && kyc.missing.length) {
+    const labels = { direccion:'Dirección', provincia:'Provincia', canton:'Cantón', distrito:'Distrito', fecha_nacimiento:'Fecha de nacimiento' };
+    $('missing-list').innerHTML = kyc.missing.map(k => `<span>${labels[k]||k}</span>`).join('');
+    $('kyc-nudge').style.display = '';
+  }
+
+  // Saldo
+  const bal = await api('/api/wallet/balance');
+  if (bal && bal.status < 400) {
+    $('v-total').textContent = fmt(bal.body.total_cents);
+    $('v-detalle').textContent = `real ${fmt(bal.body.real_cents)} · promo ${fmt(bal.body.promo_cents)}`;
+  }
+}
+
+async function guardar() {
+  const msg = $('form-msg');
+  msg.style.display = 'none';
+  const payload = {
+    email: $('f-email').value.trim(),
+    telefono: $('f-telefono').value.trim(),
+    fecha_nacimiento: $('f-fecha').value,
+    provincia: $('f-provincia').value.trim(),
+    canton: $('f-canton').value.trim(),
+    distrito: $('f-distrito').value.trim(),
+    direccion: $('f-direccion').value.trim(),
+  };
+  const r = await api('/api/me', { method: 'PUT', body: JSON.stringify(payload) });
+  if (!r) return;
+  if (r.status >= 400) {
+    msg.textContent = r.body.error || `Error ${r.status}`;
+    msg.className = 'err';
+  } else {
+    msg.textContent = 'Cambios guardados ✓';
+    msg.className = 'ok';
+    setTimeout(load, 300);
+  }
+  msg.style.display = '';
+}
+
+load();
+</script>
+</body>
+</html>

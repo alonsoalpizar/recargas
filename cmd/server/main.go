@@ -15,6 +15,7 @@ import (
 	"github.com/alonsoalpizar/recargas/internal/config"
 	"github.com/alonsoalpizar/recargas/internal/db"
 	"github.com/alonsoalpizar/recargas/internal/httpx"
+	"github.com/alonsoalpizar/recargas/internal/services/gometa"
 	"github.com/alonsoalpizar/recargas/internal/users"
 	"github.com/alonsoalpizar/recargas/internal/wallet"
 )
@@ -34,7 +35,9 @@ func main() {
 	}
 	defer pool.Close()
 
-	usersSvc := users.NewService(pool, cfg.JWTSecret)
+	gometaClient := gometa.New(cfg.GoMetaBaseURL, cfg.GoMetaTimeout)
+
+	usersSvc := users.NewService(pool, cfg.JWTSecret, gometaClient)
 	walletSvc := wallet.NewService(pool)
 
 	usersH := users.NewHandler(usersSvc)
@@ -52,12 +55,16 @@ func main() {
 	})
 
 	r.Route("/api", func(r chi.Router) {
-		r.Post("/register", usersH.Register)
-		r.Post("/login", usersH.Login)
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/verificar-cedula", usersH.VerifyCedula)
+			r.Post("/registro", usersH.Register)
+			r.Post("/login", usersH.Login)
+		})
 
 		r.Group(func(r chi.Router) {
 			r.Use(auth.RequireUser(cfg.JWTSecret))
 			r.Get("/me", usersH.Me)
+			r.Put("/me", usersH.UpdateMe)
 			r.Get("/wallet/balance", walletH.Balance)
 		})
 

@@ -3,21 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Recargas — Admin</title>
+<title>RecargaTica · Admin</title>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
-  section { border: 1px solid #ddd; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
-  label { display: block; margin: 0.5rem 0 0.25rem; font-size: 0.9rem; }
-  input, select { width: 100%; padding: 0.5rem; box-sizing: border-box; }
-  button { margin-top: 0.75rem; padding: 0.5rem 1rem; cursor: pointer; }
-  pre { background: #f5f5f5; padding: 0.75rem; border-radius: 4px; overflow-x: auto; font-size: 0.85rem; }
-  .ok { color: #047857; }
-  .err { color: #b91c1c; }
-  .hint { color: #666; font-size: 0.8rem; }
+  :root {
+    --c-primary: #1565F9;
+    --c-primary-dark: #0d49c4;
+    --c-secondary: #22C55E;
+    --c-bg: #FFFFFF;
+    --c-bg-soft: #F5F7FB;
+    --c-text: #1F2937;
+    --c-muted: #6B7280;
+    --c-border: #E5E7EB;
+    --c-ok: #047857;
+    --c-err: #B91C1C;
+  }
+  *,*::before,*::after { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; color: var(--c-text); background: var(--c-bg-soft); line-height: 1.5; }
+  .brand { font-size: 1.4rem; font-weight: 700; color: var(--c-primary); text-decoration: none; }
+  .brand em { color: var(--c-secondary); font-style: normal; }
+  section { background: #fff; border: 1px solid var(--c-border); border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  section h2 { font-size: 1rem; margin: 0 0 0.85rem; color: var(--c-text); }
+  label { display: block; margin: 0.6rem 0 0.25rem; font-size: 0.85rem; font-weight: 500; }
+  input, select { width: 100%; padding: 0.55rem 0.7rem; font-size: 0.95rem; border: 1px solid var(--c-border); border-radius: 8px; font-family: inherit; }
+  input:focus, select:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(21,101,249,0.12); }
+  button { margin-top: 0.85rem; padding: 0.6rem 1.1rem; cursor: pointer; background: var(--c-primary); color: #fff; border: none; border-radius: 8px; font-family: inherit; font-weight: 500; transition: background 0.15s; }
+  button:hover { background: var(--c-primary-dark); }
+  pre { background: var(--c-bg-soft); padding: 0.85rem 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; border: 1px solid var(--c-border); }
+  .ok { color: var(--c-ok); }
+  .err { color: var(--c-err); }
+  .hint { color: var(--c-muted); font-size: 0.85rem; }
 </style>
 </head>
 <body>
-<h1>Recargas — Admin</h1>
+<a class="brand" href="/">Recarga<em>Tica</em></a>
+<h1 style="font-size:1.3rem;margin:0.5rem 0 1.25rem;color:var(--c-muted);">Panel administrativo</h1>
 
 <section>
   <h2>Token de admin</h2>

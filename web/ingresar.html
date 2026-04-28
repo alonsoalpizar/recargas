@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RecargaTica · Ingresar</title>
+<style>
+  :root {
+    --c-primary: #1565F9;
+    --c-primary-dark: #0d49c4;
+    --c-secondary: #22C55E;
+    --c-accent: #A3E635;
+    --c-bg: #FFFFFF;
+    --c-bg-soft: #F5F7FB;
+    --c-text: #1F2937;
+    --c-muted: #6B7280;
+    --c-border: #E5E7EB;
+    --c-error: #B91C1C;
+    --radius: 10px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  *,*::before,*::after { box-sizing: border-box; }
+  body { margin:0; font-family: var(--font); background: var(--c-bg-soft); color: var(--c-text); line-height: 1.5; }
+  header { padding: 1rem 0; background:#fff; border-bottom: 1px solid var(--c-border); }
+  header .container { max-width: 1100px; margin:0 auto; padding: 0 1.25rem; display:flex; justify-content: space-between; align-items: center; }
+  .brand { font-size: 1.3rem; font-weight: 700; color: var(--c-primary); text-decoration: none; }
+  .brand em { color: var(--c-secondary); font-style: normal; }
+  .back { color: var(--c-muted); text-decoration: none; font-size: 0.9rem; }
+  .back:hover { color: var(--c-primary); }
+
+  .wrap { max-width: 480px; margin: 3rem auto 2rem; padding: 0 1rem; }
+  .card { background:#fff; border:1px solid var(--c-border); border-radius: var(--radius); padding: 1.75rem 1.5rem; }
+  h1 { margin: 0 0 0.5rem; font-size: 1.4rem; color: var(--c-text); }
+  p.hint { color: var(--c-muted); font-size: 0.9rem; margin: 0 0 1.25rem; }
+  label { display:block; margin: 0.85rem 0 0.3rem; font-size: 0.85rem; font-weight: 500; }
+  input { width:100%; padding: 0.65rem 0.8rem; font-size: 1rem; border: 1px solid var(--c-border); border-radius: 8px; font-family: inherit; transition: border-color 0.15s; }
+  input:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(21,101,249,0.12); }
+  input[readonly] { background: var(--c-bg-soft); color: var(--c-muted); }
+  button { width:100%; margin-top: 1.1rem; padding: 0.75rem 1rem; font-size: 1rem; background: var(--c-primary); color:#fff; border:none; border-radius: 8px; cursor:pointer; font-family: inherit; font-weight: 500; transition: background 0.15s; }
+  button:hover:not(:disabled) { background: var(--c-primary-dark); }
+  button:disabled { opacity:0.5; cursor: not-allowed; }
+  button.muted-link { background: none; color: var(--c-muted); padding: 0.5rem; font-size: 0.85rem; }
+  button.muted-link:hover { color: var(--c-primary); background: none; }
+  .row-check { display:flex; gap: 0.5rem; align-items: flex-start; margin-top: 0.85rem; font-size: 0.85rem; color: var(--c-muted); }
+  .row-check input { width: auto; margin-top: 0.15rem; }
+  .err { color: var(--c-error); font-size: 0.85rem; margin-top: 0.85rem; }
+  .pill { display: inline-block; padding: 0.18rem 0.6rem; border-radius: 999px; font-size: 0.72rem; background: var(--c-bg-soft); color: var(--c-primary); margin-left: 0.5rem; vertical-align: middle; font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
+  .pill.warn { background: var(--c-accent); color: #1f2937; }
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <a class="brand" href="/">Recarga<em>Tica</em></a>
+    <a class="back" href="/">← Volver al inicio</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h1 id="page-title">Ingresá a tu cuenta</h1>
+    <p class="hint">Empezamos por tu cédula.</p>
+
+    <!-- STATE 1: pedir cédula -->
+    <div id="state-cedula">
+      <label>Cédula
+        <input id="cedula" type="text" inputmode="numeric" autocomplete="off" placeholder="109660018">
+      </label>
+      <button id="btn-verificar" onclick="verificar()">Continuar</button>
+      <div id="err-cedula" class="err" style="display:none"></div>
+    </div>
+
+    <!-- STATE 2A: registro -->
+    <div id="state-registro" style="display:none">
+      <h1 style="margin-top:0.5rem">Crear tu cuenta <span id="tipo-pill" class="pill"></span></h1>
+      <label>Cédula <input id="reg-cedula" readonly></label>
+      <label>Nombre completo <input id="reg-nombre" readonly></label>
+      <label>Email
+        <input id="reg-email" type="email" autocomplete="email" required>
+      </label>
+      <label>Teléfono (8 dígitos CR)
+        <input id="reg-telefono" type="tel" inputmode="numeric" maxlength="11" placeholder="88887777" required>
+      </label>
+      <label>Password (mín 8)
+        <input id="reg-pass" type="password" autocomplete="new-password" required minlength="8">
+      </label>
+      <div class="row-check">
+        <input id="reg-tos" type="checkbox">
+        <label for="reg-tos" style="margin:0">Acepto los términos de servicio y la política de privacidad.</label>
+      </div>
+      <button onclick="registrar()">Crear mi cuenta</button>
+      <button class="muted-link" onclick="reset()">← cambiar cédula</button>
+      <div id="err-reg" class="err" style="display:none"></div>
+    </div>
+
+    <!-- STATE 2B: login -->
+    <div id="state-login" style="display:none">
+      <h1 id="login-greet" style="margin-top:0.5rem">Bienvenido de vuelta</h1>
+      <label>Cédula <input id="login-cedula" readonly></label>
+      <label>Password
+        <input id="login-pass" type="password" autocomplete="current-password" required>
+      </label>
+      <button onclick="login()">Entrar</button>
+      <button class="muted-link" onclick="reset()">← cambiar cédula</button>
+      <div id="err-login" class="err" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const TOKEN_KEY = 'recargas_jwt';
+
+if (localStorage.getItem(TOKEN_KEY)) {
+  location.href = '/perfil.html';
+}
+
+// Adapt page title based on intent (?nuevo=1 from "Crear cuenta" CTA)
+const params = new URLSearchParams(location.search);
+if (params.get('nuevo') === '1') {
+  $('page-title').textContent = 'Crear tu cuenta';
+}
+
+function reset() {
+  ['state-registro','state-login'].forEach(id => $(id).style.display = 'none');
+  $('state-cedula').style.display = '';
+  $('cedula').value = '';
+  $('cedula').focus();
+  $('err-cedula').style.display = 'none';
+}
+
+async function verificar() {
+  const raw = $('cedula').value.trim();
+  const errBox = $('err-cedula');
+  errBox.style.display = 'none';
+  if (!raw) { errBox.textContent = 'Ingresá tu cédula.'; errBox.style.display = ''; return; }
+
+  $('btn-verificar').disabled = true;
+  $('btn-verificar').textContent = 'Validando...';
+
+  try {
+    const r = await fetch('/api/auth/verificar-cedula', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cedula: raw }),
+    });
+    const body = await r.json();
+    if (!r.ok) {
+      errBox.textContent = body.error || `Error ${r.status}`;
+      errBox.style.display = '';
+      return;
+    }
+
+    if (body.existe && body.tiene_password) {
+      $('state-cedula').style.display = 'none';
+      $('state-login').style.display = '';
+      $('login-greet').textContent = 'Hola, ' + (body.nombre_completo || '').split(' ').slice(0, 2).join(' ');
+      $('login-cedula').value = body.cedula;
+      $('login-pass').focus();
+    } else {
+      $('state-cedula').style.display = 'none';
+      $('state-registro').style.display = '';
+      $('reg-cedula').value = body.cedula;
+      $('reg-nombre').value = body.nombre_completo || '';
+      $('reg-nombre').readOnly = !!body.validado_registro_civil;
+      const pill = $('tipo-pill');
+      pill.textContent = body.tipo;
+      pill.className = 'pill' + (body.kyc_pending_review ? ' warn' : '');
+      if (body.kyc_pending_review) {
+        $('reg-nombre').value = '';
+        $('reg-nombre').placeholder = 'Identificación DIMEX: ingresá tu nombre completo';
+        $('reg-nombre').readOnly = false;
+      }
+      $('reg-email').focus();
+    }
+  } catch (e) {
+    errBox.textContent = 'Error de red. Reintentá.';
+    errBox.style.display = '';
+  } finally {
+    $('btn-verificar').disabled = false;
+    $('btn-verificar').textContent = 'Continuar';
+  }
+}
+
+async function registrar() {
+  const errBox = $('err-reg');
+  errBox.style.display = 'none';
+  if (!$('reg-tos').checked) {
+    errBox.textContent = 'Debés aceptar los términos de servicio.'; errBox.style.display = ''; return;
+  }
+  const payload = {
+    cedula: $('reg-cedula').value,
+    email: $('reg-email').value.trim(),
+    telefono: $('reg-telefono').value.trim(),
+    password: $('reg-pass').value,
+    nombre: $('reg-nombre').value.trim(),
+    tos_accepted: true,
+  };
+  const r = await fetch('/api/auth/registro', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const body = await r.json();
+  if (!r.ok) { errBox.textContent = body.error || `Error ${r.status}`; errBox.style.display = ''; return; }
+
+  const lr = await fetch('/api/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cedula: payload.cedula, password: payload.password }),
+  });
+  const lb = await lr.json();
+  if (!lr.ok) { errBox.textContent = 'Cuenta creada pero falló login automático. Reintentá.'; errBox.style.display = ''; return; }
+  localStorage.setItem(TOKEN_KEY, lb.token);
+  location.href = '/perfil.html';
+}
+
+async function login() {
+  const errBox = $('err-login');
+  errBox.style.display = 'none';
+  const r = await fetch('/api/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cedula: $('login-cedula').value, password: $('login-pass').value }),
+  });
+  const body = await r.json();
+  if (!r.ok) { errBox.textContent = body.error || `Error ${r.status}`; errBox.style.display = ''; return; }
+  localStorage.setItem(TOKEN_KEY, body.token);
+  location.href = '/perfil.html';
+}
+
+['cedula','login-pass','reg-pass','reg-tos'].forEach(id => {
+  const el = $(id);
+  if (!el) return;
+  el.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (id === 'cedula') verificar();
+    else if (id === 'login-pass') login();
+    else if (id === 'reg-pass' || id === 'reg-tos') registrar();
+  });
+});
+</script>
+</body>
+</html>
