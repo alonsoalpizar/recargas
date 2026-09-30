@@ -1,3 +1,8 @@
 .env
+.env.local
+.env.production
+.env.development
+cloudflare-mail-dns.txt
+cloudflare-mail-dns.zone
 recargas-server
 *.log
